@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>可拖動手機小時鐘</title>
+    <style>
+      #clock {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        z-index: 999;
+
+        display: inline-block;
+        padding: 10px 15px;
+        border: 1px solid gray;
+        border-radius: 8px;
+        background-color: lightgray;
+        text-align: center;
+        font-family: monospace;
+        font-size: 1.2rem;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+
+        cursor: move; /* 提示可以拖動 */
+        user-select: none; /* 避免選字 */
+        touch-action: none; /* 避免觸控滾動干擾拖動 */
+      }
+
+      @media (max-width: 400px) {
+        #clock {
+          font-size: 1rem;
+          padding: 8px 12px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div id="clock"></div>
+
+    <script>
+      // ---------- 時鐘更新 ----------
+      function updateClock() {
+        const now = new Date();
+
+        let hours = addZero(now.getHours());
+        let minutes = addZero(now.getMinutes());
+        let seconds = addZero(now.getSeconds());
+        let milliseconds = addMilliseconds(now.getMilliseconds());
+
+        const timeString = `${hours}:${minutes}:${seconds}:${milliseconds}`;
+        document.getElementById("clock").innerText = timeString;
+      }
+
+      function addZero(num) {
+        return num < 10 ? "0" + num : num;
+      }
+
+      function addMilliseconds(num) {
+        if (num < 10) return "00" + num;
+        if (num < 100) return "0" + num;
+        return num;
+      }
+
+      setInterval(updateClock, 10);
+      updateClock();
+
+      // ---------- 拖動功能 ----------
+      const clock = document.getElementById("clock");
+      let offsetX = 0,
+        offsetY = 0;
+      let isDragging = false;
+
+      // 開始拖動
+      clock.addEventListener("mousedown", startDrag);
+      clock.addEventListener("touchstart", startDrag);
+
+      // 拖動中
+      document.addEventListener("mousemove", drag);
+      document.addEventListener("touchmove", drag);
+
+      // 結束拖動
+      document.addEventListener("mouseup", endDrag);
+      document.addEventListener("touchend", endDrag);
+
+      function startDrag(e) {
+        isDragging = true;
+        const rect = clock.getBoundingClientRect();
+
+        if (e.type === "mousedown") {
+          offsetX = e.clientX - rect.left;
+          offsetY = e.clientY - rect.top;
+        } else if (e.type === "touchstart") {
+          offsetX = e.touches[0].clientX - rect.left;
+          offsetY = e.touches[0].clientY - rect.top;
+        }
+      }
+
+      function drag(e) {
+        if (!isDragging) return;
+
+        e.preventDefault(); // 防止觸控滾動
+
+        let x, y;
+        if (e.type === "mousemove") {
+          x = e.clientX - offsetX;
+          y = e.clientY - offsetY;
+        } else if (e.type === "touchmove") {
+          x = e.touches[0].clientX - offsetX;
+          y = e.touches[0].clientY - offsetY;
+        }
+
+        // 限制不超出視窗
+        x = Math.max(0, Math.min(window.innerWidth - clock.offsetWidth, x));
+        y = Math.max(0, Math.min(window.innerHeight - clock.offsetHeight, y));
+
+        clock.style.left = x + "px";
+        clock.style.top = y + "px";
+      }
+
+      function endDrag() {
+        isDragging = false;
+      }
+    </script>
+  </body>
+</html>
