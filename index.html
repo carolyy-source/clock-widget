@@ -123,3 +123,47 @@
     </script>
   </body>
 </html>
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <link rel="stylesheet" href="clock.css" />
+    <script>
+      function updateClock() {
+        const now = new Date();
+
+        let hours = addZero(now.getHours());
+        let minutes = addZero(now.getMinutes());
+        let seconds = addZero(now.getSeconds());
+        let milliseconds = addMilliseconds(now.getMilliseconds());
+
+        const timeString = `${hours}:${minutes}:${seconds}:${milliseconds}`;
+
+        document.getElementById("clock").innerText = timeString;
+      }
+
+      // 補零函數（兩位數）
+      function addZero(num) {
+        return num < 10 ? "0" + num : num;
+      }
+
+      // 補零函數（毫秒，三位數）
+      function addMilliseconds(num) {
+        if (num < 10) return "00" + num;
+        if (num < 100) return "0" + num;
+        return num;
+      }
+
+      // 每 10 毫秒更新一次（避免毫秒看起來卡卡）
+      setInterval(updateClock, 10);
+
+      // 頁面載入時立即顯示
+      updateClock();
+    </script>
+  </head>
+  <body>
+    <div id="clock"></div>
+  </body>
+</html>
